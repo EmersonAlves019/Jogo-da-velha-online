@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+
+    <style>
+      .square {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        width: 100px;
+        height: 100px;
+        border: 1px solid #000;
+        float: left;
+      }
+
+      #board {
+        width: 306px;
+        height: 306px;
+        background-color: #ccc;
+        margin: 10px;
+        float: left;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 id="player"></h1>
+      <section id="board"></section>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const board = document.getElementById('board');
+      const player = document.getElementById('player');
+
+
+      const createBoard = (arr) => {
+        board.innerHTML = '';
+        board.addEventListener('click', play);
+        arr.forEach((item, i) => {
+          const square = document.createElement('div');
+          square.classList.add('square');
+          square.id = i;
+          square.innerHTML = item;
+          board.appendChild(square);
+        });
+      };
+
+
+      const nextPlayer = () => {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        player.innerHTML = `Player: ${currentPlayer}`;
+      };
+
+      const play = (e) => {
+        const square = e.target.id;
+        socket.emit('play', square);
+      };
+
+      socket.on("updateBoard", (arr) => {
+        console.log(arr)
+        createBoard(arr)
+      });
+
+      socket.on("game", console.log)
+
+      socket.on("winner", (data) => {
+        alert( "winner: " + data);
+      });
+
+    </script>
+  </body>
+</html>
